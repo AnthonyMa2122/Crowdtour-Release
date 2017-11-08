@@ -31,7 +31,7 @@ TOKEN_PATH = '/oauth2/token'
 GRANT_TYPE = 'client_credentials'
 
 
-DEFAULT_TERM = input('Please enter the name of the business that you would like to query: ')
+DEFAULT_TERM = input('Please enter the name of the business that you would like to query: ') #for now, only the top result is displayed -- in the future we can search based on unique identifiers such as address and phone number
 DEFAULT_LOCATION = 'San Francisco, CA'
 SEARCH_LIMIT = 1
 
