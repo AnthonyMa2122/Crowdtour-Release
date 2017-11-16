@@ -78,7 +78,7 @@ class Window(QWidget):
         print(self.w.getparams())
         #Write the binary as a string...
         self.binary_data = self.w.readframes(self.w.getnframes())
-        print(self.binary_data)
+        #print(self.binary_data)
         self.w.close()
 
         #STORE BINARY INTO SQL
