@@ -6,7 +6,7 @@ google_places = GooglePlaces(API_KEY)
 
 query_result = google_places.nearby_search(
     location='115 Broad Street, San Francisco',
-    radius=1000, types=[types.TYPE_RESTAURANT])
+    radius=1000, types=[types.TYPE_RESTAURANT]) #radius is in meters
 
 if query_result.has_attributions:
     print(query_result.html_attributions)
