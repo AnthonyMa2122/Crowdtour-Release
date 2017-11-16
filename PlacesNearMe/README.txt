@@ -1,0 +1,1 @@
+You'll need to install the googleplaces library, which is a wrapper that dramatically simplifies the usability of Google's Places API for Python.
