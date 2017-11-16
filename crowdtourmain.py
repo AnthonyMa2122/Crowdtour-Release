@@ -1,6 +1,13 @@
 #!/usr/bin/python3
 #Crowdtour
 import pymysql
+import wave
+import sys
+import os
+from PyQt5.QtWidgets import QApplication, QWidget
+from PyQt5.QtCore import Qt, QUrl
+from PyQt5.QtMultimedia import QSoundEffect
+
 
 # Open database connection
 connection = pymysql.connect(host='localhost',user='testhost',password='test',db='crowdtour')
@@ -18,7 +25,10 @@ sql = """CREATE TABLE MARKERS (
    address VARCHAR(80) NOT NULL,  
    lat FLOAT (10,6) NOT NULL,
    lng FLOAT (10,6) NOT NULL,
-   type VARCHAR(30) NOT NULL ) ENGINE = MYISAM"""
+   type VARCHAR(30) NOT NULL,
+   annotation VARCHAR(160),
+   sound LONGBLOB
+   ) ENGINE = MYISAM"""
 
 cursor.execute(sql)
 
@@ -35,7 +45,6 @@ INSERT INTO `MARKERS` (`id`, `name`, `address`, `lat`, `lng`, `type`) VALUES ('8
 
 cursor.execute(sqlInsert)
 
-
 #Create a cursor and print the results from the row 'name'
 cursors = connection.cursor(pymysql.cursors.DictCursor)
 cursors.execute("SELECT name FROM MARKERS")
@@ -43,5 +52,74 @@ result_set = cursors.fetchall()
 for row in result_set:
     print(row["name"])
 
-# disconnect from server
-connection.close()
+#disconnect from server
+#connection.close()
+
+#Test GUI
+class Window(QWidget):
+    def __init__(self):
+        super().__init__()
+        self.title = 'PyQt5 play QSoundEffect demo'
+        self.initUI()
+
+    def initUI(self):
+        self.setWindowTitle(self.title)
+
+        self.setGeometry(100, 100, 250, 250)
+        self.show()
+        self.sound = QSoundEffect()
+        #THIS IS WHERE YOU SET THE SOUND FILE SOURCE
+        self.sound.setSource(QUrl.fromLocalFile(os.path.join('sounds', 'Slurps.wav')))
+        self.sound.setLoopCount(QSoundEffect.Infinite)
+        self.isPlaying = False
+        #CONVERT WAV TO BINARY
+        self.w = wave.open(os.path.join('sounds', 'Beep.wav'))
+        #Parameters of the source file
+        print(self.w.getparams())
+        #Write the binary as a string...
+        self.binary_data = self.w.readframes(self.w.getnframes())
+        print(self.binary_data)
+        self.w.close()
+
+        #STORE BINARY INTO SQL
+        connectionTest = pymysql.connect(host='localhost', user='testhost', password='test', db='crowdtour')
+        cursorTest = connectionTest.cursor()
+        cursorTest.execute("INSERT INTO `MARKERS` (`id`, `name`, `address`, `lat`, `lng`, `type`,`sound`) VALUES (%s, %s, %s, %s, %s, %s, %s)" , ('9', 'Test Human', '999 Test Street, Rozelle, NSW', '-33.861034', '151.171936', 'restaurant',self.binary_data))
+
+        #READ FROM SQL
+        cursors = connection.cursor(pymysql.cursors.DictCursor)
+        cursors.execute("SELECT sound FROM MARKERS")
+        result_set = cursors.fetchall()
+        x = 0
+        listSoundbytes = [None] * 1
+        for row in result_set:
+            listSoundbytes.insert(0,row["sound"])
+            x+=1
+        #Convert string to wav file
+        stringToByte = bytes(listSoundbytes[0])
+        waveSave = wave.open(os.path.join('sounds','testFile.wav'), 'w')
+        #Set parameters for writing
+        waveSave.setparams((2, 2, 44100, 440965, 'NONE', 'not compressed'))
+        waveSave.writeframes(stringToByte)
+        #TODO: save wave file
+        #TODO: Play wave file
+        connectionTest.close()
+        self.sound.setSource(QUrl.fromLocalFile(os.path.join('sounds', 'testFile.wav')))
+        #The "All clear"
+        print("Mucho Bueno, hit Spacebar")
+
+    def keyPressEvent(self, event):
+        if (event.key() == 32):
+            self.isPlaying = not self.isPlaying
+            if self.isPlaying:
+                self.sound.play()
+                print('Play')
+            else:
+                self.sound.stop()
+                print('Stop')
+
+
+if __name__ == '__main__':
+    app = QApplication(sys.argv)
+    window = Window()
+    sys.exit(app.exec_())
