@@ -64,26 +64,24 @@ class Window(QWidget):
 
     def initUI(self):
         self.setWindowTitle(self.title)
-
         self.setGeometry(100, 100, 250, 250)
         self.show()
         self.sound = QSoundEffect()
-        #THIS IS WHERE YOU SET THE SOUND FILE SOURCE
+        #THIS IS WHERE YOU SET THE DEFAULT SOUND FILE SOURCE
         self.sound.setSource(QUrl.fromLocalFile(os.path.join('sounds', 'Slurps.wav')))
         self.sound.setLoopCount(QSoundEffect.Infinite)
         self.isPlaying = False
         #CONVERT WAV TO BINARY
         self.w = wave.open(os.path.join('sounds', 'Beep.wav'))
         #Parameters of the source file
-        print(self.w.getparams())
+        #print(self.w.getparams())
         #Write the binary as a string...
         self.binary_data = self.w.readframes(self.w.getnframes())
-        #print(self.binary_data)
         self.w.close()
 
         #STORE BINARY INTO SQL
-        connectionTest = pymysql.connect(host='localhost', user='testhost', password='test', db='crowdtour')
-        cursorTest = connectionTest.cursor()
+        #connectionTest = pymysql.connect(host='localhost', user='testhost', password='test', db='crowdtour')
+        cursorTest = connection.cursor()
         cursorTest.execute("INSERT INTO `MARKERS` (`id`, `name`, `address`, `lat`, `lng`, `type`,`sound`) VALUES (%s, %s, %s, %s, %s, %s, %s)" , ('9', 'Test Human', '999 Test Street, Rozelle, NSW', '-33.861034', '151.171936', 'restaurant',self.binary_data))
 
         #READ FROM SQL
@@ -101,9 +99,8 @@ class Window(QWidget):
         #Set parameters for writing
         waveSave.setparams((2, 2, 44100, 440965, 'NONE', 'not compressed'))
         waveSave.writeframes(stringToByte)
-        #TODO: save wave file
-        #TODO: Play wave file
-        connectionTest.close()
+        connection.close()
+        #Set sound source to soundbyte from SQL
         self.sound.setSource(QUrl.fromLocalFile(os.path.join('sounds', 'testFile.wav')))
         #The "All clear"
         print("Mucho Bueno, hit Spacebar")
