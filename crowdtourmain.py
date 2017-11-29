@@ -83,6 +83,11 @@ class Window(QWidget):
         self.uploadButton.clicked.connect(self.uploadSound)
         self.uploadButton.move(0, 150)
 
+        self.sound = QSoundEffect()
+        # This is where you set default sound source
+        self.sound.setSource(QUrl.fromLocalFile(os.path.join('sounds', 'Slurps.wav')))
+        self.sound.setLoopCount(QSoundEffect.Infinite)
+        self.isPlaying = False
 
         self.show()
 
@@ -146,11 +151,6 @@ class Window(QWidget):
 
     def uploadSound(self):
 
-        self.sound = QSoundEffect()
-        #This is where you set default sound source
-        self.sound.setSource(QUrl.fromLocalFile(os.path.join('sounds', 'Slurps.wav')))
-        self.sound.setLoopCount(QSoundEffect.Infinite)
-        self.isPlaying = False
         #Convert .Wav into Binary
         self.w = wave.open(os.path.join('sounds', 'output0.wav'))
         #Parameters of the source file
