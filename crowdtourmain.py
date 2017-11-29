@@ -147,11 +147,11 @@ class Window(QWidget):
     def uploadSound(self):
 
         self.sound = QSoundEffect()
-        #THIS IS WHERE YOU SET THE DEFAULT SOUND FILE SOURCE
+        #This is where you set default sound source
         self.sound.setSource(QUrl.fromLocalFile(os.path.join('sounds', 'Slurps.wav')))
         self.sound.setLoopCount(QSoundEffect.Infinite)
         self.isPlaying = False
-        #CONVERT WAV TO BINARY
+        #Convert .Wav into Binary
         self.w = wave.open(os.path.join('sounds', 'output0.wav'))
         #Parameters of the source file
         print(self.w.getparams())
@@ -159,12 +159,18 @@ class Window(QWidget):
         self.binary_data = self.w.readframes(self.w.getnframes())
         self.w.close()
 
-        #STORE BINARY INTO SQL
-        #connectionTest = pymysql.connect(host='localhost', user='testhost', password='test', db='crowdtour')
+        #Store binary into SQL
         cursorTest = connection.cursor()
+        #TEST INSERT
         cursorTest.execute("INSERT INTO `MARKERS` (`id`, `name`, `address`, `lat`, `lng`, `type`,`sound`) VALUES (%s, %s, %s, %s, %s, %s, %s)" , ('9', 'Test Human', '999 Test Street, Rozelle, NSW', '-33.861034', '151.171936', 'restaurant',self.binary_data))
+#       cursorTest.execute("INSERT INTO `MARKERS` (`name`) VALUES (%s)", ('10'))
+#       cursorTest.execute("INSERT INTO `MARKERS` (`address`) VALUES (%s)", ('Insert Name Here'))
+#       cursorTest.execute("INSERT INTO `MARKERS` (`lat`) VALUES (%s)", ('0'))
+#       cursorTest.execute("INSERT INTO `MARKERS` (`lng`) VALUES (%s)", ('0'))
+#       cursorTest.execute("INSERT INTO `MARKERS` (`type`) VALUES (%s)", ('Insert Type Here'))
+#       cursorTest.execute("INSERT INTO `MARKERS` (`sound`) VALUES (%s)", ('Insert Sound Here'))
 
-        #READ FROM SQL
+        #Read Binary from SQL
         cursors = connection.cursor(pymysql.cursors.DictCursor)
         cursors.execute("SELECT sound FROM MARKERS")
         result_set = cursors.fetchall()
@@ -174,7 +180,7 @@ class Window(QWidget):
             listSoundbytes.insert(0,row["sound"])
             x+=1
 
-        #Convert string to wav file
+        #Convert string to .wav file
         stringToByte = bytes(listSoundbytes[0])
         waveSave = wave.open(os.path.join('sounds','testFile.wav'), 'w')
 
