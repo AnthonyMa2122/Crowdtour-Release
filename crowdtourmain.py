@@ -1,10 +1,11 @@
 #!/usr/bin/python3
 #Crowdtour
 import pymysql
+import pyaudio
 import wave
 import sys
 import os
-from PyQt5.QtWidgets import QApplication, QWidget
+from PyQt5.QtWidgets import QApplication, QWidget, QPushButton
 from PyQt5.QtCore import Qt, QUrl
 from PyQt5.QtMultimedia import QSoundEffect
 
@@ -61,11 +62,25 @@ class Window(QWidget):
         super().__init__()
         self.title = 'PyQt5 play QSoundEffect demo'
         self.initUI()
+        self.audioCount = 0
 
     def initUI(self):
         self.setWindowTitle(self.title)
         self.setGeometry(100, 100, 250, 250)
+
+        self.recordButton = QPushButton('Record', self)
+        self.recordButton.clicked.connect(self.recordSound)
+
+        self.deleteButton = QPushButton('Delete', self)
+        self.deleteButton.clicked.connect(self.deleteSound)
+        self.deleteButton.move(0, 50)
+
+        self.playButton = QPushButton('Play/Stop', self)
+        self.playButton.clicked.connect(self.playSound)
+        self.playButton.move(0,100)
+
         self.show()
+
         self.sound = QSoundEffect()
         #THIS IS WHERE YOU SET THE DEFAULT SOUND FILE SOURCE
         self.sound.setSource(QUrl.fromLocalFile(os.path.join('sounds', 'Slurps.wav')))
@@ -93,27 +108,82 @@ class Window(QWidget):
         for row in result_set:
             listSoundbytes.insert(0,row["sound"])
             x+=1
+
         #Convert string to wav file
         stringToByte = bytes(listSoundbytes[0])
         waveSave = wave.open(os.path.join('sounds','testFile.wav'), 'w')
+
         #Set parameters for writing
         waveSave.setparams((2, 2, 44100, 440965, 'NONE', 'not compressed'))
         waveSave.writeframes(stringToByte)
         connection.close()
+
         #Set sound source to soundbyte from SQL
         self.sound.setSource(QUrl.fromLocalFile(os.path.join('sounds', 'testFile.wav')))
+
         #The "All clear"
         print("Mucho Bueno, hit Spacebar")
 
-    def keyPressEvent(self, event):
-        if (event.key() == 32):
-            self.isPlaying = not self.isPlaying
-            if self.isPlaying:
-                self.sound.play()
-                print('Play')
-            else:
-                self.sound.stop()
-                print('Stop')
+    def playSound(self):
+        self.isPlaying = not self.isPlaying
+        if self.isPlaying:
+            self.sound.play()
+            print('Play')
+        else:
+            self.sound.stop()
+            print('Stop')
+
+    def recordSound(self):
+            print("Hello Anthony")
+            #audioCount = 0
+            CHUNK = 1024
+            FORMAT = pyaudio.paInt16
+            CHANNELS = 2
+            RATE = 44100
+            RECORD_SECONDS = 10
+            self.WAVE_OUTPUT_FILENAME = "output" + str(self.audioCount) +".wav"
+            self.audioCount+=1
+
+            p = pyaudio.PyAudio()
+
+            stream = p.open(format=FORMAT,
+                            channels=CHANNELS,
+                            rate=RATE,
+                            input=True,
+                            frames_per_buffer=CHUNK)
+
+            print("* recording")
+
+            frames = []
+
+            for i in range(0, int(RATE / CHUNK * RECORD_SECONDS)):
+                data = stream.read(CHUNK)
+                frames.append(data)
+
+            print("* done recording")
+
+            stream.stop_stream()
+            stream.close()
+            p.terminate()
+
+            wf = wave.open(os.path.join('sounds',self.WAVE_OUTPUT_FILENAME), 'wb')
+            wf.setnchannels(CHANNELS)
+            wf.setsampwidth(p.get_sample_size(FORMAT))
+            wf.setframerate(RATE)
+            wf.writeframes(b''.join(frames))
+            wf.close()
+
+    def deleteSound(self):
+        print("File Delete")
+        try:
+            os.remove('sounds/' + self.WAVE_OUTPUT_FILENAME)
+            if self.audioCount < 0:
+                self.audioCount-=1
+        except OSError as e:
+            print("Error: %s - %s." % (e.filename, e.strerror))
+
+
+
 
 
 if __name__ == '__main__':
