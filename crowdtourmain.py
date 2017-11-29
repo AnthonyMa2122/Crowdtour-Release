@@ -79,50 +79,12 @@ class Window(QWidget):
         self.playButton.clicked.connect(self.playSound)
         self.playButton.move(0,100)
 
+        self.uploadButton = QPushButton('Upload', self)
+        self.uploadButton.clicked.connect(self.uploadSound)
+        self.uploadButton.move(0, 150)
+
+
         self.show()
-
-        self.sound = QSoundEffect()
-        #THIS IS WHERE YOU SET THE DEFAULT SOUND FILE SOURCE
-        self.sound.setSource(QUrl.fromLocalFile(os.path.join('sounds', 'Slurps.wav')))
-        self.sound.setLoopCount(QSoundEffect.Infinite)
-        self.isPlaying = False
-        #CONVERT WAV TO BINARY
-        self.w = wave.open(os.path.join('sounds', 'Beep.wav'))
-        #Parameters of the source file
-        #print(self.w.getparams())
-        #Write the binary as a string...
-        self.binary_data = self.w.readframes(self.w.getnframes())
-        self.w.close()
-
-        #STORE BINARY INTO SQL
-        #connectionTest = pymysql.connect(host='localhost', user='testhost', password='test', db='crowdtour')
-        cursorTest = connection.cursor()
-        cursorTest.execute("INSERT INTO `MARKERS` (`id`, `name`, `address`, `lat`, `lng`, `type`,`sound`) VALUES (%s, %s, %s, %s, %s, %s, %s)" , ('9', 'Test Human', '999 Test Street, Rozelle, NSW', '-33.861034', '151.171936', 'restaurant',self.binary_data))
-
-        #READ FROM SQL
-        cursors = connection.cursor(pymysql.cursors.DictCursor)
-        cursors.execute("SELECT sound FROM MARKERS")
-        result_set = cursors.fetchall()
-        x = 0
-        listSoundbytes = [None] * 1
-        for row in result_set:
-            listSoundbytes.insert(0,row["sound"])
-            x+=1
-
-        #Convert string to wav file
-        stringToByte = bytes(listSoundbytes[0])
-        waveSave = wave.open(os.path.join('sounds','testFile.wav'), 'w')
-
-        #Set parameters for writing
-        waveSave.setparams((2, 2, 44100, 440965, 'NONE', 'not compressed'))
-        waveSave.writeframes(stringToByte)
-        connection.close()
-
-        #Set sound source to soundbyte from SQL
-        self.sound.setSource(QUrl.fromLocalFile(os.path.join('sounds', 'testFile.wav')))
-
-        #The "All clear"
-        print("Mucho Bueno, hit Spacebar")
 
     def playSound(self):
         self.isPlaying = not self.isPlaying
@@ -182,6 +144,50 @@ class Window(QWidget):
         except OSError as e:
             print("Error: %s - %s." % (e.filename, e.strerror))
 
+    def uploadSound(self):
+
+        self.sound = QSoundEffect()
+        #THIS IS WHERE YOU SET THE DEFAULT SOUND FILE SOURCE
+        self.sound.setSource(QUrl.fromLocalFile(os.path.join('sounds', 'Slurps.wav')))
+        self.sound.setLoopCount(QSoundEffect.Infinite)
+        self.isPlaying = False
+        #CONVERT WAV TO BINARY
+        self.w = wave.open(os.path.join('sounds', 'output0.wav'))
+        #Parameters of the source file
+        print(self.w.getparams())
+        #Write the binary as a string...
+        self.binary_data = self.w.readframes(self.w.getnframes())
+        self.w.close()
+
+        #STORE BINARY INTO SQL
+        #connectionTest = pymysql.connect(host='localhost', user='testhost', password='test', db='crowdtour')
+        cursorTest = connection.cursor()
+        cursorTest.execute("INSERT INTO `MARKERS` (`id`, `name`, `address`, `lat`, `lng`, `type`,`sound`) VALUES (%s, %s, %s, %s, %s, %s, %s)" , ('9', 'Test Human', '999 Test Street, Rozelle, NSW', '-33.861034', '151.171936', 'restaurant',self.binary_data))
+
+        #READ FROM SQL
+        cursors = connection.cursor(pymysql.cursors.DictCursor)
+        cursors.execute("SELECT sound FROM MARKERS")
+        result_set = cursors.fetchall()
+        x = 0
+        listSoundbytes = [None] * 1
+        for row in result_set:
+            listSoundbytes.insert(0,row["sound"])
+            x+=1
+
+        #Convert string to wav file
+        stringToByte = bytes(listSoundbytes[0])
+        waveSave = wave.open(os.path.join('sounds','testFile.wav'), 'w')
+
+        #Set parameters for writing
+        waveSave.setparams((2, 2, 44100, 440320, 'NONE', 'not compressed'))
+        waveSave.writeframes(stringToByte)
+        connection.close()
+
+        #Set sound source to soundbyte from SQL
+        self.sound.setSource(QUrl.fromLocalFile(os.path.join('sounds', 'testFile.wav')))
+
+        #The "All clear"
+        print("Upload Successful")
 
 
 
