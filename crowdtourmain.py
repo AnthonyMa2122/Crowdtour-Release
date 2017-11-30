@@ -5,7 +5,7 @@ import pyaudio
 import wave
 import sys
 import os
-from PyQt5.QtWidgets import QApplication, QWidget, QPushButton
+from PyQt5.QtWidgets import QApplication, QWidget, QPushButton, QLabel
 from PyQt5.QtCore import Qt, QUrl
 from PyQt5.QtMultimedia import QSoundEffect
 
@@ -50,8 +50,10 @@ cursor.execute(sqlInsert)
 cursors = connection.cursor(pymysql.cursors.DictCursor)
 cursors.execute("SELECT name FROM MARKERS")
 result_set = cursors.fetchall()
-for row in result_set:
-    print(row["name"])
+
+#Test print sql query
+#for row in result_set:
+#    print(row["name"])
 
 #disconnect from server
 #connection.close()
@@ -67,25 +69,45 @@ class Window(QWidget):
     def initUI(self):
         self.setWindowTitle(self.title)
         self.setGeometry(100, 100, 250, 250)
+        self.quicklabel = QLabel('1. Record 10 second clip', self)
+        self.quicklabel.move (0, 10)
+
+        self.quicklabel2 = QLabel('2. Upload clip to server', self)
+        self.quicklabel2.move(0, 60)
+
+        self.quicklabel3 = QLabel('3. Download from server and play clip', self)
+        self.quicklabel3.move(0, 110)
+
+        self.quicklabel4 = QLabel('4. Delete recorded clip from device', self)
+        self.quicklabel4.move(0, 160)
 
         self.recordButton = QPushButton('Record', self)
         self.recordButton.clicked.connect(self.recordSound)
+        self.recordButton.move(0,25)
 
         self.deleteButton = QPushButton('Delete', self)
         self.deleteButton.clicked.connect(self.deleteSound)
-        self.deleteButton.move(0, 50)
+        self.deleteButton.move(0, 175)
 
         self.playButton = QPushButton('Play/Stop', self)
         self.playButton.clicked.connect(self.playSound)
-        self.playButton.move(0,100)
+        self.playButton.move(0,125)
 
         self.uploadButton = QPushButton('Upload', self)
         self.uploadButton.clicked.connect(self.uploadSound)
-        self.uploadButton.move(0, 150)
+        self.uploadButton.move(0, 75)
 
         self.sound = QSoundEffect()
         # This is where you set default sound source
-        self.sound.setSource(QUrl.fromLocalFile(os.path.join('sounds', 'Slurps.wav')))
+        if not os.path.exists('sounds'):
+            os.makedirs('sounds')
+
+        defaultBytes = b'27\xe5\xb2\x81\xe5'
+        waveTest = wave.open(os.path.join('sounds', 'DefaultSound.wav'), 'w')
+        waveTest.setparams((2, 2, 44100, 440320, 'NONE', 'not compressed'))
+        waveTest.writeframes(defaultBytes)
+
+        self.sound.setSource(QUrl.fromLocalFile(os.path.join('sounds', 'DefaultSound.wav')))
         self.sound.setLoopCount(QSoundEffect.Infinite)
         self.isPlaying = False
 
@@ -100,6 +122,7 @@ class Window(QWidget):
             self.sound.stop()
             print('Stop')
 
+    # TODO:Prompt User to confirm after recording?
     def recordSound(self):
             print("Hello Anthony")
             #audioCount = 0
@@ -119,7 +142,7 @@ class Window(QWidget):
                             input=True,
                             frames_per_buffer=CHUNK)
 
-            print("* recording")
+            print("recording...")
 
             frames = []
 
@@ -127,7 +150,7 @@ class Window(QWidget):
                 data = stream.read(CHUNK)
                 frames.append(data)
 
-            print("* done recording")
+            print("...done recording")
 
             stream.stop_stream()
             stream.close()
@@ -139,9 +162,9 @@ class Window(QWidget):
             wf.setframerate(RATE)
             wf.writeframes(b''.join(frames))
             wf.close()
-
+    #TODO: Should delete be automatic after upload? Leave manual for now
     def deleteSound(self):
-        print("File Delete")
+        print("File Deleted from local device")
         try:
             os.remove('sounds/' + self.WAVE_OUTPUT_FILENAME)
             if self.audioCount < 0:
@@ -153,8 +176,10 @@ class Window(QWidget):
 
         #Convert .Wav into Binary
         self.w = wave.open(os.path.join('sounds', 'output0.wav'))
-        #Parameters of the source file
-        print(self.w.getparams())
+
+        #Parameters of the source file (keep this)
+        #print(self.w.getparams())
+
         #Write the binary as a string...
         self.binary_data = self.w.readframes(self.w.getnframes())
         self.w.close()
