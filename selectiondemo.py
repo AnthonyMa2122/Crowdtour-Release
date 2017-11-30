@@ -88,18 +88,19 @@ class App(QWidget):
         for place in self.current_places.places:
             if (place.name == self.sender().text()):
                 place.get_details()
-                print(place.formatted_address)
-                # for photo in place.photos:
-                #         print(photo)
+                if (place.photos):
+                    place.photos[0].get(200,200)
+                    url = place.photos[0].url
+                    resource = urllib.request.urlopen(url).read()
+                    pixmap = QPixmap()
+                    pixmap.loadFromData(resource)
+                    self.image_label.setPixmap(pixmap)
 
-                #resource = urllib.request.urlopen(place).read()
-                pixmap = QPixmap()
-                #pixmap.loadFromData(resource)
-                #self.image_label.setPixmap()
 
 
     def geolocation(self):
-
+        self.button_list = []
+        #self.current_places = ""
         google_maps = GoogleMaps(api_key='AIzaSyDlJqxwlOWWAPwf54ivrpAZw4R1Yb5j6Yk')
 
         location = google_maps.search(location=self.newaddress.text()) # sends search to Google Maps.
@@ -123,11 +124,11 @@ class App(QWidget):
             place.get_details()
             self.button_list.append(QPushButton(place.name, self))
             self.button_list[-1].setStyleSheet("background-color: grey")
-            self.button_list[-1].move(700, self.buttonHeightCounter)
+            self.button_list[-1].move(650, self.buttonHeightCounter)
+            self.button_list[-1].resize(225,23)
             self.button_list[-1].clicked.connect(self.on_click)
             self.button_list[-1].show()
             self.buttonHeightCounter += 24
-            place.get_details()
 
             #print(place)
             print(place.formatted_address + "\n")
