@@ -120,8 +120,16 @@ class App(QWidget):
             print(query_result.html_attributions)
 
         self.buttonHeightCounter = 0
+        url_append_string = ""
+
         for place in query_result.places:
             place.get_details()
+            #print(place.details['geometry']['location']['lat'])
+
+            url_append_string = url_append_string + '&markers=color:red'
+            url_append_string = url_append_string + '%' + str(7) + 'Clabel:R%' + str(7) + 'C'
+            url_append_string = url_append_string + str(place.details['geometry']['location']['lat']) + ',' + str(place.details['geometry']['location']['lng'])
+
             self.button_list.append(QPushButton(place.name, self))
             self.button_list[-1].setStyleSheet("background-color: grey")
             self.button_list[-1].move(650, self.buttonHeightCounter)
@@ -137,12 +145,15 @@ class App(QWidget):
         mapUrl = 'http://maps.googleapis.com/maps/api/staticmap'
         mapUrl = mapUrl + '?size=800x400'
         mapUrl = mapUrl + '&center=' + str(my_location.lat) + ',' + str(my_location.lng)
-        mapUrl = mapUrl + '&zoom=' + str(15)
+        mapUrl = mapUrl + '&zoom=' + str(14)
         #&markers=color:blue%7Clabel:S%7C40.702147,-74.015794
 
         mapUrl = mapUrl + '&markers=color:blue'
         mapUrl = mapUrl + '%' + str(7) + 'Clabel:S%' + str(7) + 'C'
         mapUrl = mapUrl + str(my_location.lat) + ',' + str(my_location.lng)
+
+        mapUrl = mapUrl + url_append_string
+        print(url_append_string)
 
         # mapUrl = mapUrl + '&markers=color:blue'
         # mapUrl = mapUrl + '%' + str(7) + 'Clabel:S%' + str(7) + 'C'
