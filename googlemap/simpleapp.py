@@ -12,12 +12,14 @@ import pyaudio
 import wave
 import sys
 import os
-import urllib.request
-#from PyQt5.QtWidgets import QApplication, QWidget, QPushButton, QLabel
+from urllib.request import urlopen
+import urllib
+import base64
+
 from PyQt5.QtCore import Qt, QUrl
 from PyQt5.QtMultimedia import QSoundEffect
+from io import BytesIO
 ### integrated with database ###
-
 ### for sound
 import pygame
 
@@ -79,7 +81,7 @@ class UI(Tk):
         Tk.__init__(self)
 
         self.geometry('%dx%d+100+100' % (1200,600))
-        self.title('SimpleApp')
+        self.title('Crowdtour')
         self.audioCount = 0
         self.WAVE_OUTPUT_FILENAME = ''
         self.button_list = []
@@ -104,8 +106,6 @@ class UI(Tk):
         self.add_radio_button('Terrain',   1)
         self.add_radio_button('Satellite', 2)
         self.add_radio_button('Hybrid',    3)
-        #move entry
-        #frame=Frame(self,width=100,heigh=500,bd=11)
 
         #input
         self.entry = Entry(self, bd=3)
@@ -118,25 +118,17 @@ class UI(Tk):
 
         #buttons
         self.recordButton = Button(self,text="Record", command=self.record)
-        #self.recordButton.pack(side = "top")
         self.recordButton.place(relx=.30, rely=.75, anchor="c")
 
         self.uploadButton = Button(self,text="Upload", command=self.upload)
-        #self.uploadButton.pack(side = "top")
         self.uploadButton.place(relx=.30, rely=.80, anchor="c")
 
-        self.playButton = Button(self,text="Play/Stop", command=self.play)
-        #self.playButton.pack(side = "top")
+        self.playButton = Button(self,text="Play", command=self.play)
         self.playButton.place(relx=.30, rely=.85, anchor="c")
 
         self.deleteButton = Button(self,text="Delete", command=self.delete)
-        #self.deleteButton.pack(side = "top")
         self.deleteButton.place(relx=.30, rely=.90, anchor="c")
-
-        self.showlist = Button(self, text="Showlist", command=self.on_click)
-        self.showlist.place(relx=.30, rely=.95, anchor="c")
         ### adding part here ###
-
         self.sound = QSoundEffect()
         # This is where you set default sound source
         if not os.path.exists('sounds'):
@@ -190,8 +182,6 @@ class UI(Tk):
         maptype = self.maptypes[index]
         Radiobutton(self.radiogroup, text=maptype, variable=self.radiovar, value=index,
                 command=lambda:self.usemap(maptype)).grid(row=0, column=index)
-
-            #if maptype == 'Search':
 
 
     def click(self, event):
@@ -247,24 +237,24 @@ class UI(Tk):
 
         google_places = GooglePlaces(API_KEY)
 
-        query_result = google_places.nearby_search(
+        self.query_result = google_places.nearby_search(
             location=self.entry.get(),
             radius=700, types=[types.TYPE_RESTAURANT])
-        self.current_places = query_result
+        self.current_places = self.query_result
 
-        if query_result.has_attributions:
-            print(query_result.html_attributions)
+        if self.query_result.has_attributions:
+            print(self.query_result.html_attributions)
 
-        for place in query_result.places:
+        for place in self.query_result.places:
             place.get_details()
 
             markers = "&markers=size:big|label:S|color:red|" + str(place.details['geometry']['location']['lat']) + "," + str(place.details['geometry']['location']['lng']) + "|"
             self.maplist.append(markers)
-            print(markers)
+            #print(markers)
         #print(self.maplist[0])
             print(place.name)
-            self.button_list.append(place.name)
-            self.button_list.append(Button(self,text=place.name, command=self.on_click, width=25))
+            #self.button_list.append(place.name)
+            self.button_list.append(Button(self,text=place.name, command=lambda pname=place.name: self.on_click(pname), width=25))
             self.button_list[-1].place(relx=.70, rely=self.buttonHeightCounter, anchor="c")
             #self.button1 = Button(self, text=place.name, height=20, width=20)
             #self.button1.place(relx=.70, rely=self.buttonHeightCounter, anchor="c")
@@ -278,13 +268,6 @@ class UI(Tk):
             #self.button2.place(relx=.70, rely=.08, anchor="c")
             print(place.formatted_address + "\n")
 
-
-
-
-        #self.button1 = Button(self, text=self.button_list[0], height=20, width=20)
-        #self.button1.place(relx=.70, rely=.05, anchor="c")
-        #self.button2 = Button(self, text="button", height=20, width=20)
-        #self.button2.place(relx=.70, rely=.10, anchor="c")
 
         google_maps = GoogleMaps(api_key='AIzaSyDlJqxwlOWWAPwf54ivrpAZw4R1Yb5j6Yk')
 
@@ -311,24 +294,12 @@ class UI(Tk):
         self.goompy = GooMPy(WIDTH, HEIGHT, my_location.lat, my_location.lng, ZOOM, MAPTYPE, MARKER)
         #self.goompyone = GooMPy(WIDTH, HEIGHT, my_location.lat, my_location.lng, ZOOM, MAPTYPE, MARKERONE)
         #self.restart()
-        """
-        API_KEY = 'AIzaSyBPGAbevdKkeXaZT0ZsR0qbO30Bpqqm0Mc'
 
-        google_places = GooglePlaces(API_KEY)
-
-        query_result = google_places.nearby_search(
-            location=self.entry.get(),
-            radius=700, types=[types.TYPE_RESTAURANT])
-        self.current_places = query_result
-
-        if query_result.has_attributions:
-            print(query_result.html_attributions)
-        """
         self.restart()
-        print(query_result)
+        print(self.query_result)
         print(str(my_location.lat))
         print(str(my_location.lng))
-        print(self.button_list)
+        #print(self.button_list)
 
     def record(self):
         print("Hello Anthony")
@@ -354,10 +325,6 @@ class UI(Tk):
 
         print("recording...")
 
-        #label = Label(self, text= "recording start for 10 seconds")
-        #this creates a new label to the GUI
-        #label.place(relx=.70, rely=.75)
-
         frames = []
 
         for i in range(0, int(RATE / CHUNK * RECORD_SECONDS)):
@@ -365,10 +332,6 @@ class UI(Tk):
             frames.append(data)
 
         print("...done recording")
-
-        #label = Label(self, text= "recording is 10 seconds...done recording")
-        #this creates a new label to the GUI
-        #label.place(relx=.60, rely=.80)
 
         stream.stop_stream()
         stream.close()
@@ -380,10 +343,7 @@ class UI(Tk):
         wf.setframerate(RATE)
         wf.writeframes(b''.join(frames))
         wf.close()
-        #label = Label(self, text= "recording start for 10 seconds")
-        #this creates a new label to the GUI
-        #label.place(relx=.70, rely=.75)
-        #print("recorded")
+
         label = Label(self, text= "recording is 10 seconds...done recording")
         #this creates a new label to the GUI
         label.place(relx=.35, rely=.80)
@@ -435,9 +395,10 @@ class UI(Tk):
         #The "All clear"
         print("Upload Successful")
 
-        label = Label(self, text= "Upload Successful")
+        label1 = Label(self, text= "Upload Successful!")
         #this creates a new label to the GUI
-        label.place(relx=.35, rely=.85)
+        label1.place(relx=.35, rely=.85)
+
 
         #print("uploaded")
     #play = lambda: PlaySound('Sound.wav', SND_FILENAME)
@@ -446,7 +407,6 @@ class UI(Tk):
         pygame.mixer.init()
         sounda= pygame.mixer.Sound("./sounds/testFile.wav")
         sounda.play()
-
 
         #self.isPlaying = not self.isPlaying
         #self.isPlaying = True;
@@ -466,8 +426,46 @@ class UI(Tk):
                 self.audioCount-=1
         except OSError as e:
             print("Error: %s - %s." % (e.filename, e.strerror))
-        #print("deleted")
 
+
+    def on_click(self, pname):
+        for place in self.query_result.places:
+            if (place.name == pname):
+                place.get_details()
+                if (place.photos):
+                    place.photos[0].get(200,200)
+                    place.photos[2].get(200,200)
+                    #print(place.photos)
+                    url = place.photos[0].url
+                    url1 = place.photos[2].url
+                    #print(urllib.request.urlopen(url).read())
+                    print(url)
+                    resource = urllib.request.urlopen(url)
+                    im = resource.read()
+                    resource.close()
+                    self.img = Image.open(BytesIO(im))
+                    resource1 = urllib.request.urlopen(url1)
+                    im1 = resource1.read()
+                    resource1.close()
+                    self.img1 = Image.open(BytesIO(im1))
+                    #resource1 = urllib.request.urlopen(url1).read()
+                    canvas = Canvas(width=200, height=200, bg='black')
+                    canvas1 = Canvas(width=200, height=200, bg='black')
+                    canvas.pack()
+                    canvas1.pack()
+                    canvas.place(relx=.81, rely=.1)
+                    canvas1.place(relx=.81, rely= .5)
+                    img = self.img.resize((200, 200), Image.ANTIALIAS)
+                    self.photo = ImageTk.PhotoImage(img)
+                    #self.img1 = Image.open("../speaker.jpg")
+                    img1 = self.img1.resize((200, 200), Image.ANTIALIAS)
+                    self.photo1 = ImageTk.PhotoImage(img1)
+                    canvas.create_image(105, 105, image=self.photo, anchor="c")
+                    canvas1.create_image(105, 105, image=self.photo1, anchor="c")
+
+        self.restart()
+
+    """
     def on_click(self):
         #for place in self.current_places.places:
             #if (place.name == self.button_list.cget('text')):
@@ -504,7 +502,7 @@ class UI(Tk):
                     #pixmap.loadFromData(resource)
                     #self.image_label.setPixmap(pixmap)
     #def showlist(self):
-
+    """
 
 UI().mainloop()
 #if __name__ == '__main__':
