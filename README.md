@@ -39,10 +39,10 @@ password: test <br>
 ### Croudtour in action
 
 Crowdtour main UI:<br>
-<img src="https://github.com/AnthonyMa2122/CSC-690-Final-Project/blob/master/images/SearchedHybridView.png" alt="hi" class="inline"/><br />
+<img src="https://i.imgur.com/Oou6hQe.jpg" alt="hi" class="inline"/><br />
 
 How the database should look after recording: <br>
-<img src="https://github.com/AnthonyMa2122/CSC-690-Final-Project/blob/master/images/WorkbenchSQL.png" alt="hi" class="inline"/><br />
+<img src="https://i.imgur.com/F9KOHq9.png" alt="hi" class="inline"/><br />
 
 <br><br>
 ### Milestone 1:
