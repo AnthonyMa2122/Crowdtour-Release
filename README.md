@@ -34,7 +34,8 @@ Username: root <br>
 password: test <br>
 
 
-3.In the CSC-690-Final-Project directory, compile and run 'python simpleapp.py' <br>
+3.In the CSC-690-Final-Project directory, go to googlemap directory and 
+  compile the simpleapp.py file with the command 'python3 simpleapp.py' <br>
 
 ### Croudtour in action
 
