@@ -110,11 +110,9 @@ class UI(Tk):
         #input
         self.entry = Entry(self, bd=3)
         self.button = Button(self, text="Location", command=self.geolocation)
-        #self.button.pack(side = "top")
         self.button.place(relx=.18, rely=.90, anchor="c")
-        #self.entry.pack(side = "left")
         self.entry.place(relx=.05, rely=.80)
-        #self.entry.focus()
+
 
         #buttons
         self.recordButton = Button(self,text="Record", command=self.record)
@@ -140,9 +138,6 @@ class UI(Tk):
         waveTest.writeframes(defaultBytes)
 
         self.sound.setSource(QUrl.fromLocalFile(os.path.join('sounds', 'DefaultSound.wav')))
-        #self.sound.setLoopCount(QSoundEffect.Infinite)
-        #self.isPlaying = False
-
 
         ### adding part here ###
 
@@ -250,22 +245,10 @@ class UI(Tk):
 
             markers = "&markers=size:big|label:S|color:red|" + str(place.details['geometry']['location']['lat']) + "," + str(place.details['geometry']['location']['lng']) + "|"
             self.maplist.append(markers)
-            #print(markers)
-        #print(self.maplist[0])
             print(place.name)
-            #self.button_list.append(place.name)
             self.button_list.append(Button(self,text=place.name, command=lambda pname=place.name: self.on_click(pname), width=25))
             self.button_list[-1].place(relx=.70, rely=self.buttonHeightCounter, anchor="c")
-            #self.button1 = Button(self, text=place.name, height=20, width=20)
-            #self.button1.place(relx=.70, rely=self.buttonHeightCounter, anchor="c")
             self.buttonHeightCounter += .035
-            #self.buttonHeightCounter += 0.035
-            #self.button_list[1].place(relx=.70, rely=.05, anchor="c")
-            #self.button_list[0].place(relx=.70, rely=.08, anchor="c")
-            #self.button1 = Button(self, text=self.button_list[0], height=20, width=20)
-            #self.button1.place(relx=.70, rely=.05, anchor="c")
-            #self.button2 = Button(self, text=self.button_list[1], height=20, width=20)
-            #self.button2.place(relx=.70, rely=.08, anchor="c")
             print(place.formatted_address + "\n")
 
 
@@ -276,15 +259,9 @@ class UI(Tk):
         my_location = location.first() # returns only first location.
 
         #MARKER = '&markers=color:blue' + '%' + str(7) + 'Clabel:S%' + str(7) + 'C' + str(my_location.lat) + ',' + str(my_location.lng)
+        #MARKER = "&markers=size:big|label:S|color:blue|" + str(my_location.lat) + "," + str(my_location.lng) + "|" + \
 
-        #MARKER = "&markers=size:big|label:S|color:blue|" + str(my_location.lat) + "," + str(my_location.lng) + "|" + \
-        #         "&markers=size:big|label:S|color:red|" + str(my_location.lat + 0.0010000) + "," + str(my_location.lng + 0.0010000) + "|" + \
-        #         "&markers=size:big|label:S|color:red|" + str(my_location.lat + 0.0020000) + "," + str(my_location.lng + 0.0020000) + "|"
-        #MARKER = "&markers=size:big|label:S|color:blue|" + str(my_location.lat) + "," + str(my_location.lng) + "|" + \
-        MARKER  = self.maplist[1] + self.maplist[2] + self.maplist[3] #+ self.maplist[4] + self.maplist[5] + self.maplist[6]
-                  #self.maplist[7] + self.maplist[8] + self.maplist[9] + self.maplist[10] + self.maplist[11] + self.maplist[12] + \
-                  #self.maplist[13] + self.maplist[14] + self.maplist[15] + self.maplist[16] + self.maplist[17] + self.maplist[18]
-        #MARKERONE = self.maplist[4] + self.maplist[5] + self.maplist[6]
+        MARKER  = self.maplist[1] + self.maplist[2] + self.maplist[3]
 
         self.zoomlevel = ZOOM
 
@@ -292,8 +269,6 @@ class UI(Tk):
         self.radiovar.set(maptype_index)
 
         self.goompy = GooMPy(WIDTH, HEIGHT, my_location.lat, my_location.lng, ZOOM, MAPTYPE, MARKER)
-        #self.goompyone = GooMPy(WIDTH, HEIGHT, my_location.lat, my_location.lng, ZOOM, MAPTYPE, MARKERONE)
-        #self.restart()
 
         self.restart()
         print(self.query_result)
@@ -303,9 +278,6 @@ class UI(Tk):
 
     def record(self):
         print("Hello Anthony")
-        label = Label(self, text= " ")
-        #this creates a new label to the GUI
-        label.place(relx=.60, rely=.80)
         #audioCount = 0
         CHUNK = 1024
         FORMAT = pyaudio.paInt16
@@ -400,8 +372,6 @@ class UI(Tk):
         label1.place(relx=.35, rely=.85)
 
 
-        #print("uploaded")
-    #play = lambda: PlaySound('Sound.wav', SND_FILENAME)
     def play(self):
         pygame.init()
         pygame.mixer.init()
@@ -435,10 +405,8 @@ class UI(Tk):
                 if (place.photos):
                     place.photos[0].get(200,200)
                     place.photos[2].get(200,200)
-                    #print(place.photos)
                     url = place.photos[0].url
                     url1 = place.photos[2].url
-                    #print(urllib.request.urlopen(url).read())
                     print(url)
                     resource = urllib.request.urlopen(url)
                     im = resource.read()
@@ -448,7 +416,6 @@ class UI(Tk):
                     im1 = resource1.read()
                     resource1.close()
                     self.img1 = Image.open(BytesIO(im1))
-                    #resource1 = urllib.request.urlopen(url1).read()
                     canvas = Canvas(width=200, height=200, bg='black')
                     canvas1 = Canvas(width=200, height=200, bg='black')
                     canvas.pack()
@@ -457,7 +424,6 @@ class UI(Tk):
                     canvas1.place(relx=.81, rely= .5)
                     img = self.img.resize((200, 200), Image.ANTIALIAS)
                     self.photo = ImageTk.PhotoImage(img)
-                    #self.img1 = Image.open("../speaker.jpg")
                     img1 = self.img1.resize((200, 200), Image.ANTIALIAS)
                     self.photo1 = ImageTk.PhotoImage(img1)
                     canvas.create_image(105, 105, image=self.photo, anchor="c")
@@ -465,47 +431,5 @@ class UI(Tk):
 
         self.restart()
 
-    """
-    def on_click(self):
-        #for place in self.current_places.places:
-            #if (place.name == self.button_list.cget('text')):
-                #place.get_details()
-                #if (place.photos):
-                    #place.photos[0].get(200,200)
-                    #url = place.photos[0].url
-                    #url1 = place.photos[1].url
-                    #resource = urllib.request.urlopen(url).read()
-                    #resource1 = urllib.request.urlopen(url1).read()
-                    canvas = Canvas(width=200, height=200, bg='black')
-                    canvas1 = Canvas(width=200, height=200, bg='black')
-                    canvas.pack()
-                    canvas1.pack()
-                    canvas.place(relx=.81, rely=.1)
-                    canvas1.place(relx=.81, rely= .5)
-                    self.img = Image.open("../speaker.jpg")
-                    img = self.img.resize((200, 200), Image.ANTIALIAS)
-                    self.photo = ImageTk.PhotoImage(img)
-                    self.img1 = Image.open("../speaker.jpg")
-                    img1 = self.img1.resize((200, 200), Image.ANTIALIAS)
-                    self.photo1 = ImageTk.PhotoImage(img1)
-                    canvas.create_image(105, 105, image=self.photo, anchor="c")
-                    canvas1.create_image(105, 105, image=self.photo1, anchor="c")
-        #resource = "./speaker.jpg"
-        #img = ImageTk.PhotoImage(Image.open("./speaker.jpg"))
-        #panel = Tk.Label(self, image = img)
-
-        #panel.pack(side = "bottom", fill = "both", expand = "yes")
-        #panel.place(relx=.85, rely=.5)
-
-                    self.restart()
-                    #pixmap = QPixmap()
-                    #pixmap.loadFromData(resource)
-                    #self.image_label.setPixmap(pixmap)
-    #def showlist(self):
-    """
 
 UI().mainloop()
-#if __name__ == '__main__':
-#    app = QApplication(sys.argv)
-#    UI().mainloop()
-#    sys.exit(app.exec_())
