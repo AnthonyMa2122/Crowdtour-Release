@@ -33,15 +33,16 @@ Port: 3306 <br>
 Username: root <br>
 password: test <br>
 
+
 3.In the CSC-690-Final-Project directory, compile and run 'python simpleapp.py' <br>
 
 ### Croudtour in action
 
 Crowdtour main UI:<br>
-![Screenshot of Terrain/Hybrid](https://github.com/AnthonyMa2122/CSC-690-Final-Project/blob/master/images/SearchedHybridView.png)
+<img src="https://github.com/AnthonyMa2122/CSC-690-Final-Project/blob/master/images/SearchedHybridView.png" alt="hi" class="inline"/><br />
 
 How the database should look after recording: <br>
-![SQL Image](https://github.com/AnthonyMa2122/CSC-690-Final-Project/blob/master/images/WorkbenchSQL.png)
+<img src="https://github.com/AnthonyMa2122/CSC-690-Final-Project/blob/master/images/WorkbenchSQL.png" alt="hi" class="inline"/><br />
 
 <br><br>
 ### Milestone 1:
